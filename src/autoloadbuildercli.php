@@ -251,8 +251,11 @@ namespace TheSeer\Tools {
          $isStatic = $input->getOption('static')->value;
          $isPhar   = $input->getOption('phar')->value;
          $isCompat = $input->getOption('compat')->value;
+         $isRun    = $input->getOption('run')->value;
 
-         if ($isStatic === true) {
+         if ($isRun === true) {
+            $ab = new RunBuilder($finder, $input);
+         } else if ($isStatic === true) {
             $ab = new StaticBuilder($finder->getClasses());
             $ab->setDependencies($finder->getDependencies());
             $ab->setPharMode($isPhar);
@@ -260,7 +263,6 @@ namespace TheSeer\Tools {
             $ab = new AutoloadBuilder($finder->getClasses());
          }
 
-         $ab->setRun($input->getOption('run')->value);
          $ab->setCompat($isCompat);
 
          $basedir = $input->getOption('basedir');
