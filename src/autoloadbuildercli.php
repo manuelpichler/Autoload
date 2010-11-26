@@ -54,6 +54,18 @@ namespace TheSeer\Tools {
       const VERSION = "%version%";
 
       /**
+       * Main method that can be called by a shell script.
+       *
+       * @return integer
+       */
+      public static function main()
+      {
+         $exec = new AutoloadBuilderCLI();
+         $exec->run();
+         return 0;
+      }
+
+      /**
        * Main executor method
        *
        * @return void

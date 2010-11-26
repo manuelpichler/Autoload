@@ -54,6 +54,4 @@ require __DIR__ . '/src/dependencysorter.php';
 
 require __DIR__ . '/src/autoloadbuildercli.php';
 
-$exec = new \TheSeer\Tools\AutoloadBuilderCLI();
-$exec->run();
-exit(0);
+exit(\TheSeer\Tools\AutoloadBuilderCLI::main());
