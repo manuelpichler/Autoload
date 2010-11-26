@@ -2,6 +2,7 @@
  <target name="clean">
   <!-- Clean up -->
   <delete dir="build"/>
+  <delete dir="dist" />
 
   <!-- Create build directories -->
   <mkdir dir="${basedir}/build/api"/>
@@ -9,6 +10,7 @@
   <mkdir dir="${basedir}/build/coverage"/>
   <mkdir dir="${basedir}/build/logs"/>
   <mkdir dir="${basedir}/build/pdepend"/>
+  <mkdir dir="${basedir}/dist" />
  </target>
 
  <!-- Run unit tests and generate junit.xml and clover.xml -->
@@ -74,6 +76,25 @@
               --source ${basedir}/src
               --output ${basedir}/build/code-browser" />
   </exec>
+ </target>
+
+ <target name="phar" depends="clean">
+  <exec executable="php" dir="${basedir}/..">
+   <arg value="${basedir}/phpab.php" />
+   <arg value="-i" />
+   <arg value="*/Autoload/src/*" />
+   <arg value="-i" />
+   <arg value="*/DirectoryScanner/src/*" />
+   <arg value="-i" />
+   <arg value="*/ezc/current/*/src/*" />
+   <arg value="-e" />
+   <arg value="*/Autoload/phpab.php" />
+   <arg value="-p" />
+   <arg value="-o" />
+   <arg value="${basedir}/dist/phpab.phar" />
+   <arg value="." />
+  </exec>
+  <chmod file="${basedir}/dist/phpab.phar" perm="755"/>
  </target>
 
  <target name="build" depends="clean,parallelTasks,phpunit,phpcb"/>
