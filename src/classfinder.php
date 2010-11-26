@@ -228,8 +228,10 @@ namespace TheSeer\Tools {
                      }
                      $dependsClass .= strtolower($tok[1]);
                   } else if ($mainMethodFound && strtolower($tok[1]) === 'main') {
-                     $this->mainMethods[$lastClass] = $lastClass . '::main';
+                     $mainClass       = str_replace('\\\\', '\\', $lastClass);
                      $mainMethodFound = false;
+
+                     $this->mainMethods[$mainClass] = $mainClass . '::main';
                   }
                   continue;
                }
