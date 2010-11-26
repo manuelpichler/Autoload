@@ -128,6 +128,11 @@ namespace TheSeer\Tools {
             's', 'static', \ezcConsoleInput::TYPE_NONE, null, false,
             'Build a static require file'
          ));
+        
+         $mainOption = $input->registerOption( new \ezcConsoleOption(
+            'm', 'main', \ezcConsoleInput::TYPE_STRING, null, false,
+            'Use the main method of the following class'
+         ));
 
          $input->argumentDefinition = new \ezcConsoleArguments();
          $input->argumentDefinition[0] = new \ezcConsoleArgument( "directory" );
@@ -275,9 +280,24 @@ namespace TheSeer\Tools {
 
             if ($isPhar) {
                if ($isStatic) {
-                  $tplFile = 'staticphar.php.tpl';
+                  if ($finder->hasMainMethod()) {
+                     $tplFile = 'staticphar.cli.php.tpl';
+                  } else {
+                     $tplFile = 'staticphar.php.tpl';
+                  }
                } else {
-                  $tplFile = 'phar.php.tpl';
+                  if ($finder->hasMainMethod()) {
+                     $tplFile = 'phar.cli.php.tpl';
+                  } else {
+                     $tplFile = 'phar.php.tpl';
+                  }
+               }
+               
+               if ($input->getOption('main')->value || $finder->hasMainMethod()) {
+                  $ab->setVariable(
+                     'MAIN_METHOD', 
+                     $finder->getMainMethod($input->getOption('main')->value)
+                  );
                }
             } elseif ($isStatic) {
                $tplFile = 'static.php.tpl';
@@ -403,6 +423,7 @@ Usage: phpab [switches] <directory>
 
   -c, --compat     Generate PHP 5.2 compatible code
   -s, --static     Generate a static require file
+  -m, --main       Invoke the main method of this class
 
       --format     Dateformat string for timestamp
       --linebreak  Linebreak style (CR, CR/LF or LF)

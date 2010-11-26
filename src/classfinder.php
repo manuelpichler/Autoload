@@ -49,6 +49,7 @@ namespace TheSeer\Tools {
 
       protected $foundClasses = array();
       protected $dependencies = array();
+      protected $mainMethods = array();
 
       public function __construct($doDeps = false) {
          $this->withDeps = $doDeps;
@@ -63,6 +64,25 @@ namespace TheSeer\Tools {
             throw new ClassFinderException('Dependency collection disabled', ClassFinderException::NoDependencies);
          }
          return $this->dependencies;
+      }
+
+      public function hasMainMethod() {
+         return (count($this->mainMethods) > 0);
+      }
+
+      public function getMainMethod($class) {
+         if ($class && false === isset($this->mainMethods[strtolower($class)])) {
+            throw new ClassFinderException('No main method found in class: ' . $class);
+         } else if (0 === count($this->mainMethods)) {
+            throw new ClassFinderException('No main method found');
+         } else if (1 < count($this->mainMethods)) {
+            throw new ClassFinderException('Ambiguous main methods found');
+         }
+
+         if (isset($this->mainMethods[strtolower($class)])) {
+            return $this->mainMethods[strtolower($class)];
+         }
+         return reset($this->mainMethods);
       }
 
       /**
@@ -84,6 +104,9 @@ namespace TheSeer\Tools {
          $implementsFound = false;
          $lastClass       = '';
          $dependsClass    = '';
+         $publicFound     = false;
+         $staticFound     = false;
+         $mainMethodFound = false;
 
          $token = token_get_all(file_get_contents($file));
          foreach($token as $tok) {
@@ -175,6 +198,20 @@ namespace TheSeer\Tools {
                   }
                   continue;
                }
+               case T_PUBLIC: {
+                  $publicFound = true;
+                  continue;
+               }
+               case T_STATIC: {
+                  $staticFound = true;
+                  continue;
+               }
+               case T_FUNCTION: {
+                  $mainMethodFound = ($publicFound && $staticFound);
+                  $publicFound     = false;
+                  $staticFound     = false;
+                  continue;
+               }
 
                case T_STRING: {
                   if ($nsFound) {
@@ -190,6 +227,9 @@ namespace TheSeer\Tools {
                         $classNameStart = false;
                      }
                      $dependsClass .= strtolower($tok[1]);
+                  } else if ($mainMethodFound && strtolower($tok[1]) === 'main') {
+                     $this->mainMethods[$lastClass] = $lastClass . '::main';
+                     $mainMethodFound = false;
                   }
                   continue;
                }
