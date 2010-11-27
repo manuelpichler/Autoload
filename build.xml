@@ -98,4 +98,30 @@
  </target>
 
  <target name="build" depends="clean,parallelTasks,phpunit,phpcb"/>
+
+ <target name="checkout">
+  <property name="src.dir" location="${basedir}/.." />
+  <property name="ezc.root" location="${src.dir}/ezc/current" />
+  <property name="ezc.autoload" location="${ezc.root}/autoload" />
+
+  <mkdir dir="${ezc.autoload}" />
+  <exec executable="git" dir="${ezc.root}">
+   <arg value="clone" />
+   <arg value="https://github.com/naderman/ezc-base.git" />
+   <arg value="Base" />
+  </exec>
+  <copy todir="${ezc.autoload}" file="${ezc.root}/Base/src/base_autoload.php" />
+  <exec executable="git" dir="${ezc.root}">
+   <arg value="clone" />
+   <arg value="https://github.com/naderman/ezc-console-tools.git" />
+   <arg value="ConsoleTools" />
+  </exec>
+  <copy todir="${ezc.autoload}" file="${ezc.root}/ConsoleTools/src/console_autoload.php" />
+
+  <exec executable="git" dir="${src.dir}">
+   <arg value="clone" />
+   <arg value="https://github.com/theseer/DirectoryScanner.git" />
+  </exec>
+ </target>
+
 </project>
