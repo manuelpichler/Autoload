@@ -14,6 +14,14 @@ spl_autoload_register(
       }
    }
 );
-
-exit(___MAIN_METHOD___($argv));
+if (isset($argv[0]) && __FILE__ === realpath($argv[0])) {
+   ob_start();
+   foreach (explode(PATH_SEPARATOR, get_include_path()) as $path) {
+      if (substr($path, -5, 5) === '.phar') {
+         include_once $path;
+      }
+   }
+   ob_end_clean();
+   exit(___MAIN_METHOD___($argv));
+}
 __HALT_COMPILER();
