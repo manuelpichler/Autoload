@@ -1,16 +1,22 @@
 <project name="Autoload" default="build" basedir=".">
+
+ <!-- Common properties -->
+ <property name="dist.dir" value="${basedir}/dist" />
+ <property name="build.dir" value="${basedir}/build" />
+ <property name="classes.dir" value="${build.dir}/classes" />
+
  <target name="clean">
   <!-- Clean up -->
   <delete dir="build"/>
   <delete dir="dist" />
 
   <!-- Create build directories -->
-  <mkdir dir="${basedir}/build/api"/>
-  <mkdir dir="${basedir}/build/code-browser"/>
-  <mkdir dir="${basedir}/build/coverage"/>
-  <mkdir dir="${basedir}/build/logs"/>
-  <mkdir dir="${basedir}/build/pdepend"/>
-  <mkdir dir="${basedir}/dist" />
+  <mkdir dir="${build.dir}/api"/>
+  <mkdir dir="${build.dir}/code-browser"/>
+  <mkdir dir="${build.dir}/coverage"/>
+  <mkdir dir="${build.dir}/logs"/>
+  <mkdir dir="${build.dir}/pdepend"/>
+  <mkdir dir="${dist.dir}" />
  </target>
 
  <!-- Run unit tests and generate junit.xml and clover.xml -->
@@ -32,9 +38,9 @@
  <!-- Generate jdepend.xml and software metrics charts -->
  <target name="pdepend">
   <exec executable="pdepend">
-   <arg line="--jdepend-xml=${basedir}/build/logs/jdepend.xml
-              --jdepend-chart=${basedir}/build/pdepend/dependencies.svg
-              --overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg
+   <arg line="--jdepend-xml=${build.dir}/logs/jdepend.xml
+              --jdepend-chart=${build.dir}/pdepend/dependencies.svg
+              --overview-pyramid=${build.dir}/pdepend/overview-pyramid.svg
               src" />
   </exec>
  </target>
@@ -42,14 +48,14 @@
  <!-- Generate pmd.xml -->
  <target name="phpmd">
   <exec executable="phpmd">
-   <arg line="src xml codesize,design,naming,unusedcode --reportfile ${basedir}/build/logs/pmd.xml" />
+   <arg line="src xml codesize,design,naming,unusedcode --reportfile ${build.dir}/logs/pmd.xml" />
   </exec>
  </target>
 
  <!-- Generate pmd-cpd.xml -->
  <target name="phpcpd">
   <exec executable="phpcpd">
-   <arg line="--log-pmd ${basedir}/build/logs/pmd-cpd.xml src" />
+   <arg line="--log-pmd ${build.dir}/logs/pmd-cpd.xml src" />
   </exec>
  </target>
 
@@ -57,7 +63,7 @@
  <target name="phpcs">
   <exec executable="phpcs" output="/dev/null">
    <arg line="--report=checkstyle
-              --report-file=${basedir}/build/logs/checkstyle.xml
+              --report-file=${build.dir}/logs/checkstyle.xml
               --standard=Sebastian
               src" />
   </exec>
@@ -72,29 +78,35 @@
 
  <target name="phpcb">
   <exec executable="phpcb">
-   <arg line="--log    ${basedir}/build/logs
+   <arg line="--log    ${build.dir}/logs
               --source ${basedir}/src
-              --output ${basedir}/build/code-browser" />
+              --output ${build.dir}/code-browser" />
   </exec>
  </target>
 
- <target name="phar" depends="clean">
-  <exec executable="php" dir="${basedir}/..">
+ <target name="compile" depends="clean">
+   <mkdir dir="${classes.dir}" />
+   <copy todir="${classes.dir}">
+    <fileset dir="${basedir}/..">
+     <include name="Autoload/src/**/*.*" />
+     <include name="DirectoryScanner/src/**/*.*" />
+     <include name="ezc/current/Base/src/**/*.*" />
+     <include name="ezc/current/ConsoleTools/src/**/*.*" />
+    </fileset>
+   </copy>
+ </target>
+
+ <target name="phar" depends="compile">
+  <exec executable="php" failonerror="true">
    <arg value="${basedir}/phpab.php" />
    <arg value="-i" />
-   <arg value="*/Autoload/src/*" />
-   <arg value="-i" />
-   <arg value="*/DirectoryScanner/src/*" />
-   <arg value="-i" />
-   <arg value="*/ezc/current/*/src/*" />
-   <arg value="-e" />
-   <arg value="*/Autoload/phpab.php" />
+   <arg value="*.*" />
    <arg value="-p" />
    <arg value="-o" />
-   <arg value="${basedir}/dist/phpab.phar" />
-   <arg value="." />
+   <arg value="${dist.dir}/phpab.phar" />
+   <arg value="${classes.dir}" />
   </exec>
-  <chmod file="${basedir}/dist/phpab.phar" perm="755"/>
+  <chmod file="${dist.dir}/phpab.phar" perm="755"/>
  </target>
 
  <target name="build" depends="clean,parallelTasks,phpunit,phpcb"/>
