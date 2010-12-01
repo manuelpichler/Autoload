@@ -10,7 +10,7 @@ spl_autoload_register(
       }
       $cn = strtolower($class);
       if (isset($classes[$cn])) {
-         require 'phar://___PHAR___' . $classes[$cn];
+         require 'phar://' . __FILE__ . $classes[$cn];
       }
    }
 );
