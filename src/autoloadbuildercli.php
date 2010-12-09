@@ -304,10 +304,20 @@ namespace TheSeer\Tools {
                      $tplFile = 'phar.php.tpl';
                   }
                }
-               
-               if ($input->getOption('main')->value || $finder->hasMainMethod()) {
+               if ($finder->hasMainMethod()) {
+                  $availableMainClasses = array();
+                  foreach ($finder->getMainMethods() as $key => $value) {
+                     $availableMainClasses[] = "'{$key}' => '{$value}'";
+                  }
                   $ab->setVariable(
-                     'MAIN_METHOD', 
+                     'AVAILABLE_MAIN_CLASSES',
+                     join(', ', $availableMainClasses)
+                  );
+               }
+
+               if ($input->getOption('main')->value) {
+                  $ab->setVariable(
+                     'DEFAULT_MAIN_CLASS',
                      $finder->getMainMethod($input->getOption('main')->value)
                   );
                }

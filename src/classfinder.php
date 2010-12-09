@@ -71,18 +71,14 @@ namespace TheSeer\Tools {
       }
 
       public function getMainMethod($class) {
-         if ($class && false === isset($this->mainMethods[strtolower($class)])) {
-            throw new ClassFinderException('No main method found in class: ' . $class);
-         } else if (0 === count($this->mainMethods)) {
-            throw new ClassFinderException('No main method found');
-         } else if (1 < count($this->mainMethods)) {
-            throw new ClassFinderException('Ambiguous main methods found');
-         }
-
          if (isset($this->mainMethods[strtolower($class)])) {
             return $this->mainMethods[strtolower($class)];
          }
-         return reset($this->mainMethods);
+         throw new ClassFinderException('No main method found in class: ' . $class);
+      }
+
+      public function getMainMethods() {
+         return $this->mainMethods;
       }
 
       /**
@@ -231,7 +227,8 @@ namespace TheSeer\Tools {
                      $mainClass       = str_replace('\\\\', '\\', $lastClass);
                      $mainMethodFound = false;
 
-                     $this->mainMethods[$mainClass] = $mainClass . '::main';
+                     $this->mainMethods[$mainClass]                   = $mainClass;
+                     $this->mainMethods[strtr($mainClass, '\\', '.')] = $mainClass;
                   }
                   continue;
                }

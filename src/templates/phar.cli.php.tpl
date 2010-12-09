@@ -22,6 +22,20 @@ if (isset($argv[0]) && __FILE__ === realpath($argv[0])) {
       }
    }
    ob_end_clean();
-   exit(___MAIN_METHOD___($argv));
+
+   $mainClasses = array(___AVAILABLE_MAIN_CLASSES___);
+   if (isset($argv[1]) && isset($mainClasses[strtolower($argv[1])])) {
+      $mainClass = $mainClasses[strtolower($argv[1])];
+
+      unset($argv[1]);
+      $argv = array_values($argv);
+
+      $_SERVER['argv'] = $argv;
+      $GLOBALS['argv'] = $argv;
+
+      exit(call_user_func(array($mainClass, 'main'), $argv));
+   } else if ('___DEFAULT_MAIN_CLASS___' !== '___DEFAULT_MAIN_CLASS__' . '_') {
+      exit(___DEFAULT_MAIN_CLASS___::main($argv));
+   }
 }
 __HALT_COMPILER();

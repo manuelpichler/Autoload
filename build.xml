@@ -99,6 +99,8 @@
  <target name="phar" depends="compile">
   <exec executable="php" failonerror="true">
    <arg value="${basedir}/phpab.php" />
+   <arg value="-m" />
+   <arg value="theseer.tools.autoloadbuildercli" />
    <arg value="-i" />
    <arg value="*.*" />
    <arg value="-p" />
