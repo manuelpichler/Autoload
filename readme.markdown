@@ -101,8 +101,8 @@ phpab [switches] <directory>
     -v, --version    Prints the version and exits
 
 
-Usaage Samples
---------------
+Usage Samples
+-------------
 
     [theseer@rikka ~]$ phpab -o src/autoload.inc.php src
 
